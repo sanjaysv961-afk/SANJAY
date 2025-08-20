@@ -1,0 +1,59 @@
+import java.util.*;
+
+// Base class (abstract)
+abstract class User {
+    protected String name;
+
+    User(String name) {
+        this.name = name;
+    }
+
+    abstract void display();
+}
+
+// Derived class - Student
+class Student extends User {
+    private String studentId;
+
+    Student(String name, String studentId) {
+        super(name);
+        this.studentId = studentId;
+    }
+
+    @Override
+    void display() {
+        System.out.println("Student Name: " + name + ", Student ID: " + studentId);
+    }
+}
+
+// Derived class - Instructor
+class Instructor extends User {
+    private String subject;
+
+    Instructor(String name, String subject) {
+        super(name);
+        this.subject = subject;
+    }
+
+    @Override
+    void display() {
+        System.out.println("Instructor Name: " + name + ", Subject: " + subject);
+    }
+}
+
+// Main class (Programiz expects this name)
+public class Main {
+    public static void main(String[] args) {
+        List<User> users = Arrays.asList(
+            new Student("Alice", "S101"),
+            new Instructor("Dr. Bob", "Computer Science"),
+            new Student("Charlie", "S102"),
+            new Instructor("Dr. Eve", "Mathematics")
+        );
+
+        // Polymorphism in action
+        for (User u : users) {
+            u.display();
+        }
+    }
+}
