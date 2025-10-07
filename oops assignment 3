@@ -1,0 +1,98 @@
+// Dining Philosophers Problem using Java
+class Chopstick {
+    private final int id;
+    private boolean inUse = false;
+
+    public Chopstick(int id) {
+        this.id = id;
+    }
+
+    public synchronized void pickUp(int philosopherId) throws InterruptedException {
+        while (inUse) {
+            wait();
+        }
+        inUse = true;
+        System.out.println("Philosopher " + philosopherId + " picked up Chopstick " + id);
+    }
+
+    public synchronized void putDown(int philosopherId) {
+        inUse = false;
+        System.out.println("Philosopher " + philosopherId + " put down Chopstick " + id);
+        notify();
+    }
+}
+
+class Philosopher extends Thread {
+    private final int id;
+    private final Chopstick left;
+    private final Chopstick right;
+
+    public Philosopher(int id, Chopstick left, Chopstick right) {
+        this.id = id;
+        this.left = left;
+        this.right = right;
+    }
+
+    private void think() throws InterruptedException {
+        System.out.println("Philosopher " + id + " is thinking 💭");
+        Thread.sleep((int) (Math.random() * 2000));
+    }
+
+    private void eat() throws InterruptedException {
+        System.out.println("Philosopher " + id + " is eating 🍝");
+        Thread.sleep((int) (Math.random() * 1500));
+    }
+
+    @Override
+    public void run() {
+        try {
+            while (true) {
+                think();
+
+                // Pick up chopsticks
+                if (id == 4) { 
+                    // Deadlock avoidance: last philosopher picks right first
+                    right.pickUp(id);
+                    left.pickUp(id);
+                } else {
+                    left.pickUp(id);
+                    right.pickUp(id);
+                }
+
+                eat();
+
+                // Put down chopsticks
+                left.putDown(id);
+                right.putDown(id);
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            System.out.println("Philosopher " + id + " was interrupted.");
+        }
+    }
+}
+
+public class DiningPhilosophers {
+    public static void main(String[] args) {
+        int numPhilosophers = 5;
+        Philosopher[] philosophers = new Philosopher[numPhilosophers];
+        Chopstick[] chopsticks = new Chopstick[numPhilosophers];
+
+        // Create chopsticks
+        for (int i = 0; i < numPhilosophers; i++) {
+            chopsticks[i] = new Chopstick(i);
+        }
+
+        // Create philosophers and assign chopsticks
+        for (int i = 0; i < numPhilosophers; i++) {
+            Chopstick left = chopsticks[i];
+            Chopstick right = chopsticks[(i + 1) % numPhilosophers];
+            philosophers[i] = new Philosopher(i, left, right);
+        }
+
+        // Start all philosopher threads
+        for (Philosopher p : philosophers) {
+            p.start();
+        }
+    }
+}
