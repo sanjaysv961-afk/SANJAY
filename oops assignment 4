@@ -1,0 +1,36 @@
+import java.io.*;
+import java.net.*;
+import java.util.*;
+
+public class DictionaryServer {
+    public static void main(String[] args) {
+        try {
+            ServerSocket serverSocket = new ServerSocket(5000);
+            System.out.println("Dictionary Server started...");
+            Socket socket = serverSocket.accept();
+            System.out.println("Client connected.");
+
+            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+
+            // Dictionary Database
+            HashMap<String, String> dictionary = new HashMap<>();
+            dictionary.put("java", "A high-level programming language used for application development.");
+            dictionary.put("socket", "An endpoint for communication between two machines.");
+            dictionary.put("network", "A group of interconnected computers that share resources.");
+            dictionary.put("compiler", "A program that converts source code into executable code.");
+            dictionary.put("thread", "A lightweight process used for multitasking.");
+
+            String word = in.readLine();
+            System.out.println("Client requested: " + word);
+
+            String meaning = dictionary.getOrDefault(word.toLowerCase(), "Word not found in dictionary.");
+            out.println(meaning);
+
+            socket.close();
+            serverSocket.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
