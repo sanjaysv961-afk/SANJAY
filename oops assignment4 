@@ -1,0 +1,84 @@
+import java.io.*;
+import java.net.*;
+import java.util.*;
+
+// ===============================
+// SERVER CLASS
+// ===============================
+class DictionaryServer implements Runnable {
+    @Override
+    public void run() {
+        try {
+            ServerSocket serverSocket = new ServerSocket(5000);
+            System.out.println("Dictionary Server started...");
+            Socket socket = serverSocket.accept();
+            System.out.println("Client connected.");
+
+            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+
+            // Dictionary database
+            HashMap<String, String> dictionary = new HashMap<>();
+            dictionary.put("java", "A high-level programming language used for application development.");
+            dictionary.put("socket", "An endpoint for communication between two machines.");
+            dictionary.put("network", "A group of interconnected computers that share resources.");
+            dictionary.put("compiler", "A program that converts source code into executable code.");
+            dictionary.put("thread", "A lightweight process used for multitasking.");
+
+            String word = in.readLine();
+            System.out.println("Client requested: " + word);
+
+            String meaning = dictionary.getOrDefault(word.toLowerCase(), "Word not found in dictionary.");
+            out.println(meaning);
+
+            socket.close();
+            serverSocket.close();
+            System.out.println("Server closed.");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+
+// ===============================
+// CLIENT CLASS
+// ===============================
+class DictionaryClient implements Runnable {
+    @Override
+    public void run() {
+        try {
+            // Wait for server to start
+            Thread.sleep(1000);
+
+            Socket socket = new Socket("localhost", 5000);
+            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+            Scanner sc = new Scanner(System.in);
+
+            System.out.print("Enter a word to find its meaning: ");
+            String word = sc.nextLine();
+            out.println(word);
+
+            String meaning = in.readLine();
+            System.out.println("Meaning: " + meaning);
+
+            socket.close();
+            sc.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+
+// ===============================
+// MAIN CLASS
+// ===============================
+public class SocketBasedDictionary {
+    public static void main(String[] args) {
+        Thread serverThread = new Thread(new DictionaryServer());
+        Thread clientThread = new Thread(new DictionaryClient());
+
+        serverThread.start();
+        clientThread.start();
+    }
+}
