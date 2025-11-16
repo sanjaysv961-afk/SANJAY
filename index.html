@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mentor Feedback Feed</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            background: white;
+            padding: 10px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            background: #f0f0f0;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            color: #666;
+            transition: all 0.3s ease;
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Form Styles */
+        .feedback-form {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            font-family: inherit;
+            transition: border-color 0.3s ease;
+        }
+
+        input[type="text"]:focus,
+        input[type="email"]:focus,
+        textarea:focus,
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .rating-input {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .star-btn {
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            opacity: 0.5;
+        }
+
+        .star-btn:hover,
+        .star-btn.active {
+            opacity: 1;
+            transform: scale(1.2);
+            color: #ffc107;
+        }
+
+        .tags-input {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .tag-option {
+            background: #e8f4f8;
+            color: #0066cc;
+            padding: 8px 15px;
+            border-radius: 20px;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .tag-option:hover {
+            border-color: #0066cc;
+        }
+
+        .tag-option.selected {
+            background: #0066cc;
+            color: white;
+            border-color: #0066cc;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 25px;
+        }
+
+        .submit-btn {
+            flex: 1;
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .reset-btn {
+            flex: 1;
+            padding: 12px 30px;
+            background: #f0f0f0;
+            color: #666;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .reset-btn:hover {
+            background: #e0e0e0;
+        }
+
+        /* Feed Styles */
+        .feedback-feed {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .feedback-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .feedback-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .mentor-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 15px;
+        }
+
+        .mentor-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .mentor-details h3 {
+            color: #333;
+            margin-bottom: 3px;
+            font-size: 1.1em;
+        }
+
+        .mentor-details p {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .feedback-title {
+            color: #333;
+            font-size: 1.1em;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .feedback-content {
+            color: #555;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .rating {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 15px;
+        }
+
+        .star {
+            color: #ffc107;
+            font-size: 1.2em;
+        }
+
+        .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .tag {
+            background: #e8f4f8;
+            color: #0066cc;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 500;
+        }
+
+        .feedback-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #999;
+            font-size: 0.9em;
+        }
+
+        .empty-message {
+            text-align: center;
+            padding: 40px 20px;
+            background: white;
+            border-radius: 12px;
+            color: #999;
+            font-size: 1.1em;
+        }
+
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        @media (max-width: 600px) {
+            header h1 {
+                font-size: 1.8em;
+            }
+
+            .feedback-form {
+                padding: 20px;
+            }
+
+            .tabs {
+                flex-direction: column;
+            }
+
+            .tab-btn {
+                padding: 10px 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📚 Mentor Feedback</h1>
+            <p>Track your learning progress with personalized insights</p>
+        </header>
+
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="add">Add Feedback</button>
+            <button class="tab-btn" data-tab="view">View Feedback</button>
+        </div>
+
+        <!-- Add Feedback Tab -->
+        <div id="add" class="tab-content active">
+            <div class="feedback-form">
+                <h2 style="margin-bottom: 20px; color: #333;">Submit New Feedback</h2>
+                <div class="success-message" id="successMsg">✓ Feedback added successfully!</div>
+
+                <form id="feedbackForm">
+                    <div class="form-group">
+                        <label for="mentorName">Mentor Name *</label>
+                        <input type="text" id="mentorName" name="mentorName" placeholder="e.g., Sarah Rodriguez" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="mentorRole">Mentor Role/Subject *</label>
+                        <input type="text" id="mentorRole" name="mentorRole" placeholder="e.g., Senior JavaScript Mentor" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="feedbackTitle">Feedback Title *</label>
+                        <input type="text" id="feedbackTitle" name="feedbackTitle" placeholder="e.g., Excellent progress on async/await" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="feedbackContent">Feedback Message *</label>
+                        <textarea id="feedbackContent" name="feedbackContent" placeholder="Write your detailed feedback here..." required></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Rating *</label>
+                        <div class="rating-input" id="ratingInput">
+                            <button type="button" class="star-btn" data-rating="1">★</button>
+                            <button type="button" class="star-btn" data-rating="2">★</button>
+                            <button type="button" class="star-btn" data-rating="3">★</button>
+                            <button type="button" class="star-btn" data-rating="4">★</button>
+                            <button type="button" class="star-btn" data-rating="5">★</button>
+                        </div>
+                        <input type="hidden" id="rating" name="rating" value="0">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Tags (Select relevant tags)</label>
+                        <div class="tags-input" id="tagsInput">
+                            <button type="button" class="tag-option" data-tag="JavaScript">JavaScript</button>
+                            <button type="button" class="tag-option" data-tag="Python">Python</button>
+                            <button type="button" class="tag-option" data-tag="Web Design">Web Design</button>
+                            <button type="button" class="tag-option" data-tag="Data Science">Data Science</button>
+                            <button type="button" class="tag-option" data-tag="CSS">CSS</button>
+                            <button type="button" class="tag-option" data-tag="Great Work">Great Work</button>
+                            <button type="button" class="tag-option" data-tag="Needs Improvement">Needs Improvement</button>
+                            <button type="button" class="tag-option" data-tag="Code Review">Code Review</button>
+                        </div>
+                        <input type="hidden" id="selectedTags" name="selectedTags" value="">
+                    </div>
+
+                    <div class="btn-group">
+                        <button type="submit" class="submit-btn">Submit Feedback</button>
+                        <button type="reset" class="reset-btn">Clear Form</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- View Feedback Tab -->
+        <div id="view" class="tab-content">
+            <div class="feedback-feed" id="feedbackFeed">
+                <div class="empty-message">No feedback yet. Add feedback to see it here!</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let feedbackList = [];
+        let selectedRating = 0;
+        let selectedTags = [];
+
+        // Tab switching
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const tabName = this.getAttribute('data-tab');
+                
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+                
+                this.classList.add('active');
+                document.getElementById(tabName).classList.add('active');
+
+                if (tabName === 'view') {
+                    displayFeedback();
+                }
+            });
+        });
+
+        // Star rating
+        document.querySelectorAll('.star-btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                selectedRating = parseInt(this.getAttribute('data-rating'));
+                document.getElementById('rating').value = selectedRating;
+
+                document.querySelectorAll('.star-btn').forEach(b => {
+                    b.classList.remove('active');
+                });
+
+                for (let i = 0; i < selectedRating; i++) {
+                    document.querySelectorAll('.star-btn')[i].classList.add('active');
+                }
+            });
+        });
+
+        // Tag selection
+        document.querySelectorAll('.tag-option').forEach(tag => {
+            tag.addEventListener('click', function(e) {
+                e.preventDefault();
+                this.classList.toggle('selected');
+                
+                selectedTags = Array.from(document.querySelectorAll('.tag-option.selected'))
+                    .map(t => t.getAttribute('data-tag'));
+                
+                document.getElementById('selectedTags').value = selectedTags.join(',');
+            });
+        });
+
+        // Form submission
+        document.getElementById('feedbackForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            if (selectedRating === 0) {
+                alert('Please select a rating');
+                return;
+            }
+
+            const feedback = {
+                id: Date.now(),
+                mentorName: document.getElementById('mentorName').value,
+                mentorRole: document.getElementById('mentorRole').value,
+                feedbackTitle: document.getElementById('feedbackTitle').value,
+                feedbackContent: document.getElementById('feedbackContent').value,
+                rating: selectedRating,
+                tags: selectedTags,
+                date: new Date().toLocaleDateString('en-US', { 
+                    year: 'numeric', 
+                    month: 'short', 
+                    day: 'numeric' 
+                })
+            };
+
+            feedbackList.push(feedback);
+
+            // Show success message
+            const successMsg = document.getElementById('successMsg');
+            successMsg.style.display = 'block';
+            setTimeout(() => {
+                successMsg.style.display = 'none';
+            }, 3000);
+
+            // Reset form
+            this.reset();
+            selectedRating = 0;
+            selectedTags = [];
+            document.querySelectorAll('.star-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tag-option').forEach(t => t.classList.remove('selected'));
+            document.getElementById('rating').value = 0;
+            document.getElementById('selectedTags').value = '';
+        });
+
+        function displayFeedback() {
+            const feedFeed = document.getElementById('feedbackFeed');
+
+            if (feedbackList.length === 0) {
+                feedFeed.innerHTML = '<div class="empty-message">No feedback yet. Add feedback to see it here!</div>';
+                return;
+            }
+
+            feedFeed.innerHTML = feedbackList.map(feedback => `
+                <div class="feedback-card">
+                    <div class="mentor-info">
+                        <div class="mentor-avatar">${feedback.mentorName.charAt(0)}${feedback.mentorName.split(' ')[1]?.charAt(0) || ''}</div>
+                        <div class="mentor-details">
+                            <h3>${feedback.mentorName}</h3>
+                            <p>${feedback.mentorRole}</p>
+                        </div>
+                    </div>
+                    <div class="feedback-title">${feedback.feedbackTitle}</div>
+                    <div class="feedback-content">${feedback.feedbackContent}</div>
+                    <div class="rating">
+                        ${Array(feedback.rating).fill('<span class="star">★</span>').join('')}
+                    </div>
+                    <div class="tags">
+                        ${feedback.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+                    </div>
+                    <div class="feedback-footer">
+                        <span>${feedback.date}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+    </script>
+</body>
+</html>
