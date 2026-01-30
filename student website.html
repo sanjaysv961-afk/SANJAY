@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Student / College Portal</title>
+
+<style>
+body{
+  font-family: Arial, sans-serif;
+  background:#f4f4f4;
+  margin:0;
+}
+header{
+  background:#2c3e50;
+  color:white;
+  padding:15px;
+  text-align:center;
+}
+nav{
+  background:#34495e;
+  padding:10px;
+  text-align:center;
+}
+nav a{
+  color:white;
+  margin:10px;
+  text-decoration:none;
+  font-weight:bold;
+}
+section{
+  background:white;
+  margin:20px;
+  padding:20px;
+  border-radius:6px;
+}
+
+/* Course cards */
+.card{
+  border:2px solid #ccc;
+  border-radius:8px;
+  padding:15px;
+  margin:10px;
+  width:200px;
+  display:inline-block;
+  text-align:center;
+  cursor:pointer;
+}
+.card:hover{
+  border-color:#3498db;
+}
+.card.selected{
+  background:#dfe9ff;
+  border-color:#3498db;
+  font-weight:bold;
+}
+
+input,button,textarea{
+  padding:8px;
+  margin:6px;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+<h1>Student / College Portal</h1>
+<p>All 10 Questions Implemented</p>
+</header>
+
+<nav>
+<a href="#home">Home</a>
+<a href="#register">Register</a>
+<a href="#login">Login</a>
+<a href="#courses">Courses</a>
+<a href="#grades">Grades</a>
+<a href="#events">Events</a>
+<a href="#contact">Contact</a>
+<a href="#profile">Profile</a>
+<a href="#results">Results</a>
+</nav>
+
+<!-- Q1: HOME -->
+<section id="home">
+<h2>Welcome</h2>
+<p>This student portal can be accessed by anyone.</p>
+</section>
+
+<!-- Q2: REGISTRATION -->
+<section id="register">
+<h2>Student Registration</h2>
+<form onsubmit="return register()">
+<input id="rname" placeholder="Name"><br>
+<input id="remail" placeholder="Email"><br>
+<input id="rpass" type="password" placeholder="Password"><br>
+<button>Register</button>
+</form>
+<p id="rmsg"></p>
+</section>
+
+<!-- Q3: LOGIN -->
+<section id="login">
+<h2>Login</h2>
+<input id="user" placeholder="Username"><br>
+<input id="pass" type="password" placeholder="Password"><br>
+<button onclick="login()">Login</button>
+<p id="lmsg"></p>
+</section>
+
+<!-- Q4 + Q10: COURSE LIST + FILTER + SELECT -->
+<section id="courses">
+<h2>Course Catalog</h2>
+
+<input type="text" id="search" placeholder="Search course" onkeyup="filterCourses()">
+
+<div id="courseGrid">
+  <div class="card" onclick="selectCourse(this)">Web Technology</div>
+  <div class="card" onclick="selectCourse(this)">Data Science</div>
+  <div class="card" onclick="selectCourse(this)">Database Systems</div>
+  <div class="card" onclick="selectCourse(this)">Operating Systems</div>
+</div>
+
+<p id="selectedCourse"></p>
+</section>
+
+<!-- Q5: GRADE CALCULATOR -->
+<section id="grades">
+<h2>Grade Calculator</h2>
+<input id="marks" placeholder="Enter Marks">
+<button onclick="calculateGrade()">Calculate</button>
+<p id="gradeResult"></p>
+</section>
+
+<!-- Q6: EVENTS -->
+<section id="events">
+<h2>College Events</h2>
+<ul>
+<li>Workshop – Jan 10</li>
+<li>Cultural Fest – Feb 20</li>
+<li>Sports Day – Mar 15</li>
+</ul>
+</section>
+
+<!-- Q7: CONTACT -->
+<section id="contact">
+<h2>Contact Faculty</h2>
+<form onsubmit="return emailCheck()">
+<input id="email" placeholder="Email"><br>
+<textarea placeholder="Message"></textarea><br>
+<button>Send</button>
+</form>
+<p id="emsg"></p>
+</section>
+
+<!-- Q8: PROFILE -->
+<section id="profile">
+<h2>Student Profile</h2>
+<input value="Student Name"><br>
+<input value="Department"><br>
+<button>Update</button>
+</section>
+
+<!-- Q9: RESULTS -->
+<section id="results">
+<h2>Semester Results</h2>
+<table border="1" cellpadding="8">
+<tr><th>Subject</th><th>Marks</th></tr>
+<tr><td>Web Technology</td><td>88</td></tr>
+<tr><td>DBMS</td><td>79</td></tr>
+<tr><td>OS</td><td>91</td></tr>
+</table>
+</section>
+
+<script>
+// Registration
+function register(){
+  if(rname.value=="" || rpass.value.length<6){
+    rmsg.innerText="Invalid details";
+    return false;
+  }
+  rmsg.innerText="Registration successful";
+  return false;
+}
+
+// Login
+function login(){
+  if(user.value=="admin" && pass.value=="1234")
+    lmsg.innerText="Login successful";
+  else
+    lmsg.innerText="Invalid login";
+}
+
+// Filter courses
+function filterCourses(){
+  let input = search.value.toLowerCase();
+  document.querySelectorAll(".card").forEach(card=>{
+    card.style.display =
+      card.innerText.toLowerCase().includes(input) ? "inline-block" : "none";
+  });
+}
+
+// Select course
+function selectCourse(card){
+  document.querySelectorAll(".card").forEach(c=>c.classList.remove("selected"));
+  card.classList.add("selected");
+  selectedCourse.innerHTML = "Selected Course: <b>"+card.innerText+"</b>";
+}
+
+// Grade
+function calculateGrade(){
+  let m = Number(marks.value);
+  gradeResult.innerText =
+    m>=90?"A":m>=75?"B":m>=60?"C":"Fail";
+}
+
+// Email check
+function emailCheck(){
+  if(!email.value.includes("@")){
+    emsg.innerText="Invalid Email";
+    return false;
+  }
+  emsg.innerText="Message sent";
+  return false;
+}
+</script>
+
+</body>
+</html>
